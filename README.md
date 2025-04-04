@@ -1,4 +1,4 @@
-# security-tools-mcp
+# secops-mcp
 
 All-in-one security testing toolbox that brings together popular open source tools through a single MCP interface. Connected to an AI agent, it enables tasks like pentesting, bug bounty hunting, threat hunting, and more.
 
@@ -12,9 +12,9 @@ All-in-one security testing toolbox that brings together popular open source too
 ### Installation
 
 ```bash
-git clone https://github.com/securityfortech/security-tools-mcp
-cd security-tools-mcp
-docker build -t security-tools-mcp .
+git clone https://github.com/securityfortech/secops-mcp
+cd secops-mcp
+docker build -t secops-mcp .
 ```
 ### Claude Desktop Integration
 
@@ -22,9 +22,9 @@ Edit your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "security-tools-mcp": {
+    "secops-mcp": {
       "command": "docker",
-      "args": ["run", "--rm", "-i", "security-tools-mcp"]
+      "args": ["run", "--rm", "-i", "secops-mcp"]
     }
   }
 }
