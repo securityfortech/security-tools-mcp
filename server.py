@@ -19,7 +19,7 @@ from tools.xsstrike import run_xsstrike
 from tools.ipinfo import run_ipinfo
 
 # Create server
-mcp = FastMCP(name="security-tools-mcp",
+mcp = FastMCP(name="secops-mcp",
     version="1.0.0"
 )
 

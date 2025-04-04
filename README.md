@@ -11,11 +11,13 @@ All-in-one security testing toolbox that brings together popular open source too
 
 ### Installation
 
+Build the Docker image
 ```bash
 git clone https://github.com/securityfortech/secops-mcp
 cd secops-mcp
 docker build -t secops-mcp .
 ```
+
 ### Claude Desktop Integration
 
 Edit your `claude_desktop_config.json`:
@@ -29,6 +31,9 @@ Edit your `claude_desktop_config.json`:
   }
 }
 ```
+
+Enjoy the MCP integration to Claude Desktop
+![secops-mcp interface](docs/img/1.png)
 
 ## Available Tools
 
