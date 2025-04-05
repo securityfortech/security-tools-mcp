@@ -20,7 +20,9 @@ from tools.ipinfo import run_ipinfo
 
 # Create server
 mcp = FastMCP(name="secops-mcp",
-    version="1.0.0"
+    version="1.0.0",
+    host="0.0.0.0",
+    port=9001
 )
 
 
@@ -130,4 +132,4 @@ def ipinfo_wrapper(
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="sse")
