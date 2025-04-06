@@ -7,6 +7,14 @@ class NucleiWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("nuclei")
         
+    def is_available(self) -> bool:
+        """Check if nuclei is installed and accessible.
+        
+        Returns:
+            bool: True if nuclei is available, False otherwise
+        """
+        return self._check_installed()
+        
     def scan(
         self,
         target: str,
@@ -57,3 +65,15 @@ def run_nuclei(
 ) -> str:
     """Backward-compatible function that uses the NucleiWrapper class."""
     return nuclei.scan(target, templates, severity, output_format)
+
+
+def check_nuclei_available() -> str:
+    """Check if nuclei is installed and available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if nuclei.is_available():
+        return "Nuclei is installed and accessible."
+    else:
+        return "Nuclei is not installed or not accessible."

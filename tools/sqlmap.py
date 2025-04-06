@@ -6,6 +6,14 @@ class SqlmapWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("sqlmap")
         
+    def is_available(self) -> bool:
+        """Check if sqlmap is installed and accessible.
+        
+        Returns:
+            bool: True if sqlmap is available, False otherwise
+        """
+        return self._check_installed()
+        
     def scan(
         self,
         url: str,
@@ -44,3 +52,15 @@ def run_sqlmap(
 ) -> str:
     """Backward-compatible function that uses the SqlmapWrapper class."""
     return sqlmap.scan(url, risk, level)
+
+
+def check_sqlmap_available() -> str:
+    """Check if sqlmap is installed and available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if sqlmap.is_available():
+        return "SQLMap is installed and accessible."
+    else:
+        return "SQLMap is not installed or not accessible."

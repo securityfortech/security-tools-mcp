@@ -8,6 +8,18 @@ class IpInfoWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("ipinfo")  # Not a binary, but keep consistent pattern
         
+    def is_available(self) -> bool:
+        """Check if ipinfo.io service is accessible.
+        
+        Returns:
+            bool: True if ipinfo.io is accessible, False otherwise
+        """
+        try:
+            response = requests.get("https://ipinfo.io", timeout=5)
+            return response.status_code == 200
+        except:
+            return False
+        
     def lookup(
         self,
         ip: Optional[str] = None,
@@ -43,4 +55,16 @@ def run_ipinfo(
     ip: Optional[str] = None,
 ) -> str:
     """Backward-compatible function that uses the IpInfoWrapper class."""
-    return ipinfo.lookup(ip) 
+    return ipinfo.lookup(ip)
+
+
+def check_ipinfo_available() -> str:
+    """Check if ipinfo.io service is available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if ipinfo.is_available():
+        return "IPInfo service is accessible."
+    else:
+        return "IPInfo service is not accessible." 

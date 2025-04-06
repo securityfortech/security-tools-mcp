@@ -6,6 +6,14 @@ class SubfinderWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("subfinder")
         
+    def is_available(self) -> bool:
+        """Check if subfinder is installed and accessible.
+        
+        Returns:
+            bool: True if subfinder is available, False otherwise
+        """
+        return self._check_installed()
+        
     def enumerate(
         self,
         domain: str,
@@ -45,3 +53,15 @@ def run_subfinder(
 ) -> str:
     """Backward-compatible function that uses the SubfinderWrapper class."""
     return subfinder.enumerate(domain, recursive)
+
+
+def check_subfinder_available() -> str:
+    """Check if subfinder is installed and available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if subfinder.is_available():
+        return "Subfinder is installed and accessible."
+    else:
+        return "Subfinder is not installed or not accessible."

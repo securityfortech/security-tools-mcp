@@ -6,6 +6,14 @@ class HttpxWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("httpx")
         
+    def is_available(self) -> bool:
+        """Check if httpx is installed and accessible.
+        
+        Returns:
+            bool: True if httpx is available, False otherwise
+        """
+        return self._check_installed()
+        
     def scan(
         self,
         urls: List[str],
@@ -64,3 +72,15 @@ def run_httpx(
 ) -> str:
     """Backward-compatible function that uses the HttpxWrapper class."""
     return httpx.scan(urls, status_codes)
+
+
+def check_httpx_available() -> str:
+    """Check if httpx is installed and available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if httpx.is_available():
+        return "Httpx is installed and accessible."
+    else:
+        return "Httpx is not installed or not accessible."

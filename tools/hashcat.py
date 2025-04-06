@@ -6,6 +6,14 @@ class HashcatWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("hashcat")
         
+    def is_available(self) -> bool:
+        """Check if hashcat is installed and accessible.
+        
+        Returns:
+            bool: True if hashcat is available, False otherwise
+        """
+        return self._check_installed()
+        
     def crack(
         self,
         hash_file: str,
@@ -50,3 +58,15 @@ def run_hashcat(
 ) -> str:
     """Backward-compatible function that uses the HashcatWrapper class."""
     return hashcat.crack(hash_file, wordlist, hash_type)
+
+
+def check_hashcat_available() -> str:
+    """Check if hashcat is installed and available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if hashcat.is_available():
+        return "Hashcat is installed and accessible."
+    else:
+        return "Hashcat is not installed or not accessible."

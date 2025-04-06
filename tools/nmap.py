@@ -6,6 +6,14 @@ class NmapWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("nmap")
         
+    def is_available(self) -> bool:
+        """Check if nmap is installed and accessible.
+        
+        Returns:
+            bool: True if nmap is available, False otherwise
+        """
+        return self._check_installed()
+        
     def scan(
         self,
         target: str,
@@ -49,3 +57,15 @@ def run_nmap(
 ) -> str:
     """Backward-compatible function that uses the NmapWrapper class."""
     return nmap.scan(target, ports, scan_type)
+
+
+def check_nmap_available() -> str:
+    """Check if nmap is installed and available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if nmap.is_available():
+        return "Nmap is installed and accessible."
+    else:
+        return "Nmap is not installed or not accessible."

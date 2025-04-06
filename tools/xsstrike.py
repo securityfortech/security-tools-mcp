@@ -6,6 +6,16 @@ class XSStrikeWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("python")  # XSStrike is typically run with python
         
+    def is_available(self) -> bool:
+        """Check if XSStrike is installed and accessible.
+        
+        Returns:
+            bool: True if XSStrike is available, False otherwise
+        """
+        # Check for XSStrike script instead of python
+        import os
+        return os.path.exists("/opt/XSStrike/xsstrike.py")
+        
     def scan(
         self,
         url: str,
@@ -43,3 +53,15 @@ def run_xsstrike(
 ) -> str:
     """Backward-compatible function that uses the XSStrikeWrapper class."""
     return xsstrike.scan(url, crawl)
+
+
+def check_xsstrike_available() -> str:
+    """Check if XSStrike is installed and available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if xsstrike.is_available():
+        return "XSStrike is installed and accessible."
+    else:
+        return "XSStrike is not installed or not accessible."

@@ -6,6 +6,14 @@ class TlsxWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("tlsx")
         
+    def is_available(self) -> bool:
+        """Check if tlsx is installed and accessible.
+        
+        Returns:
+            bool: True if tlsx is available, False otherwise
+        """
+        return self._check_installed()
+        
     def scan(
         self,
         host: str,
@@ -43,3 +51,15 @@ def run_tlsx(
 ) -> str:
     """Backward-compatible function that uses the TlsxWrapper class."""
     return tlsx.scan(host, port)
+
+
+def check_tlsx_available() -> str:
+    """Check if tlsx is installed and available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if tlsx.is_available():
+        return "Tlsx is installed and accessible."
+    else:
+        return "Tlsx is not installed or not accessible."

@@ -5,7 +5,7 @@ from typing import Dict, Callable, Any
 # Import all tool functions
 from .nuclei import run_nuclei, nuclei
 from .ffuf import run_ffuf, ffuf
-from .nmap import run_nmap, nmap
+from .nmap import run_nmap, nmap, check_nmap_available
 from .wfuzz import run_wfuzz, wfuzz
 from .sqlmap import run_sqlmap, sqlmap
 from .hashcat import run_hashcat, hashcat
@@ -20,6 +20,7 @@ TOOL_REGISTRY: Dict[str, Callable] = {
     "nuclei_scan_wrapper": run_nuclei,
     "ffuf_wrapper": run_ffuf,
     "nmap_wrapper": run_nmap,
+    "nmap_check_wrapper": check_nmap_available,
     "wfuzz_wrapper": run_wfuzz,
     "sqlmap_wrapper": run_sqlmap,
     "hashcat_wrapper": run_hashcat,

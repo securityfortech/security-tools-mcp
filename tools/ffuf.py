@@ -6,6 +6,14 @@ class FfufWrapper(ToolWrapper):
     def __init__(self):
         super().__init__("ffuf")
         
+    def is_available(self) -> bool:
+        """Check if ffuf is installed and accessible.
+        
+        Returns:
+            bool: True if ffuf is available, False otherwise
+        """
+        return self._check_installed()
+        
     def fuzz(
         self,
         url: str,
@@ -43,3 +51,15 @@ def run_ffuf(
 ) -> str:
     """Backward-compatible function that uses the FfufWrapper class."""
     return ffuf.fuzz(url, wordlist, filter_code)
+
+
+def check_ffuf_available() -> str:
+    """Check if ffuf is installed and available.
+    
+    Returns:
+        str: Success message if available, error message if not
+    """
+    if ffuf.is_available():
+        return "Ffuf is installed and accessible."
+    else:
+        return "Ffuf is not installed or not accessible."

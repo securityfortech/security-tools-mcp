@@ -37,7 +37,7 @@ Enjoy the MCP integration to Claude Desktop
 
 ## Available Tools
 
-- **Nuclei**: `nuclei_scan_wrapper(target, templates, severity, output_format)` - Vulnerability scanner with template-based detection
+- **Nuclei**: `nuclei_wrapper(target, templates, severity, output_format)` - Vulnerability scanner with template-based detection
 - **FFuf**: `ffuf_wrapper(url, wordlist, filter_code)` - Fast web fuzzer for content discovery
 - **WFuzz**: `wfuzz_wrapper(url, wordlist, filter_code)` - Web application fuzzer
 - **SQLMap**: `sqlmap_wrapper(url, risk, level)` - Automatic SQL injection detection and exploitation
