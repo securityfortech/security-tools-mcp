@@ -24,6 +24,8 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+pytest_cache/
+pytest.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -43,4 +45,22 @@ coverage.xml
 
 # OS specific files
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Tool-specific files
+*.log
+*.out
+*.tmp
+*.temp
+
+# Security tool outputs
+nmap-*.xml
+nuclei-*.json
+ffuf-*.json
+sqlmap-*.log
+scan-results/
+wordlists/
+
+# MCP specific
+mcp_cache/
+mcp_logs/ 
