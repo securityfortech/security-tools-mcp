@@ -1,32 +1,47 @@
-import subprocess
 from typing import Optional
+from .base import ToolWrapper
+
+
+class SubfinderWrapper(ToolWrapper):
+    def __init__(self):
+        super().__init__("subfinder")
+        
+    def enumerate(
+        self,
+        domain: str,
+        recursive: bool = False,
+    ) -> str:
+        """Run subfinder to enumerate subdomains.
+        
+        Args:
+            domain: Target domain to enumerate
+            recursive: Whether to recursively enumerate subdomains
+        
+        Returns:
+            str: Subfinder output
+        """
+        base_cmd = ["subfinder"]
+        
+        options = {
+            "d": domain,
+            "json": True  # Always use JSON for consistent output
+        }
+        
+        # Add recursive flag if specified
+        if recursive:
+            options["recursive"] = True
+            
+        cmd = self._build_command(base_cmd, options)
+        return self._execute(cmd)
+
+
+# Create a singleton instance
+subfinder = SubfinderWrapper()
 
 
 def run_subfinder(
     domain: str,
-    output_format: Optional[str] = "text",
+    recursive: bool = False,
 ) -> str:
-    """Run subfinder to enumerate subdomains.
-    
-    Args:
-        domain: Target domain to enumerate
-        output_format: Output format (text or json)
-    
-    Returns:
-        str: Subfinder output
-    """
-    print(f"[debug] run_subfinder({domain}, output_format={output_format})")
-    
-    if not subprocess.run(["which", "subfinder"], capture_output=True).returncode == 0:
-        return "Error: subfinder is not installed. See https://github.com/projectdiscovery/subfinder"
-    
-    cmd = ["subfinder", "-d", domain]
-    if output_format == "json":
-        cmd.append("-json")
-    
-    print(cmd)
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
-    except Exception as e:
-        return f"Error executing subfinder: {str(e)}"
+    """Backward-compatible function that uses the SubfinderWrapper class."""
+    return subfinder.enumerate(domain, recursive)

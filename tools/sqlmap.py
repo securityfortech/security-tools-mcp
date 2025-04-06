@@ -1,32 +1,46 @@
-import subprocess
-from typing import List, Optional
+from typing import Optional
+from .base import ToolWrapper
+
+
+class SqlmapWrapper(ToolWrapper):
+    def __init__(self):
+        super().__init__("sqlmap")
+        
+    def scan(
+        self,
+        url: str,
+        risk: Optional[int] = 1,
+        level: Optional[int] = 1,
+    ) -> str:
+        """Run sqlmap to test for SQL injection vulnerabilities.
+        
+        Args:
+            url: Target URL to scan
+            risk: Risk level (1-3, higher = more dangerous tests)
+            level: Level of tests to perform (1-5, higher = more tests)
+        
+        Returns:
+            str: sqlmap output
+        """
+        base_cmd = ["sqlmap", "-u", url, "--batch"]
+        
+        options = {
+            "risk": risk,
+            "level": level
+        }
+        
+        cmd = self._build_command(base_cmd, options)
+        return self._execute(cmd)
+
+
+# Create a singleton instance
+sqlmap = SqlmapWrapper()
 
 
 def run_sqlmap(
     url: str,
-    options: Optional[List[str]] = None,
+    risk: Optional[int] = 1,
+    level: Optional[int] = 1,
 ) -> str:
-    """Run sqlmap to test for SQL injection vulnerabilities.
-    
-    Args:
-        url: Target URL to scan
-        options: Additional sqlmap options (e.g., ["--dbs", "--batch"])
-    
-    Returns:
-        str: sqlmap output
-    """
-    print(f"[debug] run_sqlmap({url}, options={options})")
-    
-    if not subprocess.run(["which", "sqlmap"], capture_output=True).returncode == 0:
-        return "Error: sqlmap is not installed. See https://sqlmap.org/"
-    
-    cmd = ["sqlmap", "-u", url]
-    if options:
-        cmd.extend(options)
-    
-    print(cmd)
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
-    except Exception as e:
-        return f"Error executing sqlmap: {str(e)}"
+    """Backward-compatible function that uses the SqlmapWrapper class."""
+    return sqlmap.scan(url, risk, level)

@@ -1,5 +1,39 @@
-import subprocess
 from typing import Optional
+from .base import ToolWrapper
+
+
+class FfufWrapper(ToolWrapper):
+    def __init__(self):
+        super().__init__("ffuf")
+        
+    def fuzz(
+        self,
+        url: str,
+        wordlist: str,
+        filter_code: Optional[str] = "404",
+    ) -> str:
+        """Run ffuf to fuzz web application endpoints.
+        
+        Args:
+            url: Target URL with FUZZ keyword (e.g., "http://example.com/FUZZ")
+            wordlist: Path to wordlist file
+            filter_code: HTTP status code to filter out (e.g., "404")
+        
+        Returns:
+            str: ffuf output
+        """
+        base_cmd = ["ffuf", "-u", url, "-w", wordlist]
+        
+        options = {
+            "fc": filter_code
+        }
+        
+        cmd = self._build_command(base_cmd, options)
+        return self._execute(cmd)
+
+
+# Create a singleton instance
+ffuf = FfufWrapper()
 
 
 def run_ffuf(
@@ -7,26 +41,5 @@ def run_ffuf(
     wordlist: str,
     filter_code: Optional[str] = "404",
 ) -> str:
-    """Run ffuf to fuzz web application endpoints.
-    
-    Args:
-        url: Target URL with FUZZ keyword (e.g., "http://example.com/FUZZ")
-        wordlist: Path to wordlist file
-        filter_code: HTTP status code to filter out (e.g., "404")
-    
-    Returns:
-        str: ffuf output
-    """
-    print(f"[debug] run_ffuf({url}, {wordlist}, filter_code={filter_code})")
-    
-    if not subprocess.run(["which", "ffuf"], capture_output=True).returncode == 0:
-        return "Error: ffuf is not installed. See https://github.com/ffuf/ffuf"
-    
-    cmd = ["ffuf", "-u", url, "-w", wordlist, "-fc", filter_code]
-    
-    print(cmd)
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
-    except Exception as e:
-        return f"Error executing ffuf: {str(e)}"
+    """Backward-compatible function that uses the FfufWrapper class."""
+    return ffuf.fuzz(url, wordlist, filter_code)

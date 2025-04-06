@@ -1,32 +1,45 @@
-import subprocess
-from typing import List, Optional
+from typing import Optional
+from .base import ToolWrapper
+
+
+class XSStrikeWrapper(ToolWrapper):
+    def __init__(self):
+        super().__init__("python")  # XSStrike is typically run with python
+        
+    def scan(
+        self,
+        url: str,
+        crawl: bool = False,
+    ) -> str:
+        """Run XSStrike to detect XSS vulnerabilities.
+        
+        Args:
+            url: Target URL to scan
+            crawl: Whether to crawl the website for additional URLs
+        
+        Returns:
+            str: XSStrike output
+        """
+        # XSStrike is typically installed in /opt/XSStrike
+        base_cmd = ["python", "/opt/XSStrike/xsstrike.py", "--url", url]
+        
+        # Build options
+        options = {}
+        
+        # Add crawl flag if specified
+        if crawl:
+            base_cmd.append("--crawl")
+            
+        return self._execute(base_cmd)
+
+
+# Create a singleton instance
+xsstrike = XSStrikeWrapper()
 
 
 def run_xsstrike(
     url: str,
-    options: Optional[List[str]] = None,
+    crawl: bool = False,
 ) -> str:
-    """Run XSStrike to detect XSS vulnerabilities.
-    
-    Args:
-        url: Target URL to scan
-        options: Additional XSStrike options (e.g., ["--crawl", "--blind"])
-    
-    Returns:
-        str: XSStrike output
-    """
-    print(f"[debug] run_xsstrike({url}, options={options})")
-    
-    if not subprocess.run(["which", "xsstrike"], capture_output=True).returncode == 0:
-        return "Error: XSStrike is not installed. See https://github.com/s0md3v/XSStrike"
-    
-    cmd = ["xsstrike", "-u", url]
-    if options:
-        cmd.extend(options)
-    
-    print(cmd)
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
-    except Exception as e:
-        return f"Error executing XSStrike: {str(e)}"
+    """Backward-compatible function that uses the XSStrikeWrapper class."""
+    return xsstrike.scan(url, crawl)
