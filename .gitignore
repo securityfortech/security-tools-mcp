@@ -43,4 +43,43 @@ coverage.xml
 
 # OS specific files
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Security tool specific
+*.log
+*.json
+*.csv
+*.xml
+*.html
+*.txt
+output/
+results/
+reports/
+wordlists/
+config/
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Tool specific
+nuclei-templates/
+nuclei-config.yaml
+ffuf-wordlists/
+amass-config.ini
+dirsearch/reports/
+dirsearch/logs/
+hashcat.potfile
+hashcat.restore
+hashcat.outfile
+*.hcstat
+*.hcstat2
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old 

@@ -17,6 +17,8 @@ from tools.subfinder import run_subfinder
 from tools.tlsx import run_tlsx
 from tools.xsstrike import run_xsstrike
 from tools.ipinfo import run_ipinfo
+from tools.amass import amass_wrapper
+from tools.dirsearch import dirsearch_wrapper
 
 # Create server
 mcp = FastMCP(name="secops-mcp",
@@ -127,6 +129,25 @@ def ipinfo_wrapper(
 ) -> str:
     """Wrapper for getting IP information using ipinfo.io."""
     return run_ipinfo(ip)
+
+
+@mcp.tool()
+def amass_wrapper(
+    domain: str,
+    passive: bool = True,
+) -> str:
+    """Wrapper for running Amass subdomain enumeration."""
+    return amass_wrapper(domain, passive)
+
+
+@mcp.tool()
+def dirsearch_wrapper(
+    url: str,
+    extensions: Optional[List[str]] = None,
+    wordlist: Optional[str] = None,
+) -> str:
+    """Wrapper for running Dirsearch directory brute forcing."""
+    return dirsearch_wrapper(url, extensions, wordlist)
 
 
 if __name__ == "__main__":

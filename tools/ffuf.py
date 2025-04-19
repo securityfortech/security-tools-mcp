@@ -1,5 +1,6 @@
 import subprocess
-from typing import Optional
+import json
+from typing import Optional, Dict, Any
 
 
 def run_ffuf(
@@ -15,18 +16,43 @@ def run_ffuf(
         filter_code: HTTP status code to filter out (e.g., "404")
     
     Returns:
-        str: ffuf output
+        str: JSON string containing fuzzing results
     """
-    print(f"[debug] run_ffuf({url}, {wordlist}, filter_code={filter_code})")
-    
-    if not subprocess.run(["which", "ffuf"], capture_output=True).returncode == 0:
-        return "Error: ffuf is not installed. See https://github.com/ffuf/ffuf"
-    
-    cmd = ["ffuf", "-u", url, "-w", wordlist, "-fc", filter_code]
-    
-    print(cmd)
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
+        # Build the command
+        cmd = ["ffuf", "-u", url, "-w", wordlist, "-fc", filter_code, "-o", "-", "-of", "json"]
+        
+        # Run the command
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        # Parse the output
+        try:
+            data = json.loads(result.stdout)
+            return json.dumps({
+                "success": True,
+                "url": url,
+                "results": data
+            })
+        except json.JSONDecodeError:
+            return json.dumps({
+                "success": False,
+                "error": "Failed to parse JSON output",
+                "raw_output": result.stdout
+            })
+        
+    except subprocess.CalledProcessError as e:
+        return json.dumps({
+            "success": False,
+            "error": str(e),
+            "stderr": e.stderr
+        })
     except Exception as e:
-        return f"Error executing ffuf: {str(e)}"
+        return json.dumps({
+            "success": False,
+            "error": str(e)
+        })

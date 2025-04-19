@@ -12,7 +12,13 @@ RUN apt-get update && apt-get install -y \
     nmap \
     wfuzz \
     sqlmap \
+    p7zip-full \
     ca-certificates \
+    python3-pip \
+    python3-dev \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -54,6 +60,38 @@ RUN wget -q https://github.com/projectdiscovery/tlsx/releases/download/v1.1.2/tl
 RUN git clone https://github.com/s0md3v/XSStrike.git /opt/XSStrike \
     && pip install -r /opt/XSStrike/requirements.txt || true
 
+# Install Dirsearch
+RUN git clone https://github.com/maurosoria/dirsearch.git /opt/dirsearch \
+    && pip install -r /opt/dirsearch/requirements.txt || true
+
+# Install Amass
+RUN wget -q https://github.com/OWASP/Amass/releases/download/v3.23.3/amass_Linux_amd64.zip && \
+    unzip -o amass_Linux_amd64.zip -d /tools && \
+    rm amass_Linux_amd64.zip && \
+    chmod +x /tools/amass
+
+# Install Hashcat
+RUN wget -q https://hashcat.net/files/hashcat-6.2.6.7z && \
+    7z x hashcat-6.2.6.7z && \
+    mv hashcat-6.2.6 /tools/hashcat && \
+    rm hashcat-6.2.6.7z && \
+    chmod +x /tools/hashcat/hashcat.bin
+
+# Install IPInfo CLI
+RUN wget -q https://github.com/ipinfo/cli/releases/download/ipinfo-2.12.0/ipinfo_2.12.0_linux_amd64.tar.gz && \
+    tar -xzf ipinfo_2.12.0_linux_amd64.tar.gz -C /tools && \
+    rm ipinfo_2.12.0_linux_amd64.tar.gz && \
+    chmod +x /tools/ipinfo
+
+# Install additional Python packages for tool dependencies
+RUN pip install --no-cache-dir \
+    requests \
+    beautifulsoup4 \
+    lxml \
+    python-nmap \
+    paramiko \
+    cryptography
+
 # Copy requirements.txt
 COPY requirements.txt .
 
@@ -65,4 +103,4 @@ COPY . /app
 WORKDIR /app
 
 # Command to run the application
-CMD ["python", "server.py"] 
+CMD ["python", "main.py"] 

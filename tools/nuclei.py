@@ -1,6 +1,7 @@
 # tools/nuclei.py
 import subprocess
-from typing import List, Optional
+import json
+from typing import List, Optional, Dict, Any
 
 
 def run_nuclei(
@@ -18,38 +19,51 @@ def run_nuclei(
         output_format: Output format (json, text)
     
     Returns:
-        str: The scan results in the specified format
+        str: JSON string containing scan results
     """
-    print(f"[debug] run_nuclei({target}, templates={templates}, severity={severity})")
-    
-    # Check if Nuclei is installed
-    if not subprocess.run(["which", "nuclei"], capture_output=True).returncode == 0:
-        return "Error: Nuclei is not installed. Please install it from https://github.com/projectdiscovery/nuclei#installation"
-    
-    # Build the command
-    cmd = ["nuclei", "-u", target]
-    
-    # Add template filters if specified
-    if templates:
-        cmd.extend(["-t", ",".join(templates)])
-    
-    # Add severity filter if specified
-    if severity:
-        cmd.extend(["-s", severity])
-    
-    # Add output format
-    if output_format == "json":
-        cmd.extend(["-j"])
-    
-    print(cmd)
     try:
-        # Run the scan
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        # Build the command
+        cmd = ["nuclei", "-u", target, "-json"]
         
-        if result.returncode == 0:
-            return result.stdout
-        else:
-            return f"Error running Nuclei scan: {result.stderr}"
-            
+        # Add template filters if specified
+        if templates:
+            cmd.extend(["-t", ",".join(templates)])
+        
+        # Add severity filter if specified
+        if severity:
+            cmd.extend(["-s", severity])
+        
+        # Run the scan
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        # Parse the output
+        try:
+            data = json.loads(result.stdout)
+            return json.dumps({
+                "success": True,
+                "target": target,
+                "results": data
+            })
+        except json.JSONDecodeError:
+            return json.dumps({
+                "success": False,
+                "error": "Failed to parse JSON output",
+                "raw_output": result.stdout
+            })
+        
+    except subprocess.CalledProcessError as e:
+        return json.dumps({
+            "success": False,
+            "error": str(e),
+            "stderr": e.stderr
+        })
     except Exception as e:
-        return f"Error executing Nuclei scan: {str(e)}"
+        return json.dumps({
+            "success": False,
+            "error": str(e)
+        })

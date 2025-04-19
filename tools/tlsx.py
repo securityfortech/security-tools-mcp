@@ -1,32 +1,55 @@
 import subprocess
-from typing import List, Optional
+import json
+from typing import Optional, Dict, Any
 
 
-def run_tlsx(
-    targets: List[str],
-    options: Optional[List[str]] = None,
-) -> str:
-    """Run tlsx to analyze TLS configurations.
+def run_tlsx(host: str, port: Optional[int] = 443) -> str:
+    """
+    Run tlsx to analyze TLS configurations.
     
     Args:
-        targets: List of target domains or IPs
-        options: Additional tlsx options (e.g., ["-scan-mode", "full"])
+        host: Target hostname or IP address
+        port: Target port (default: 443)
     
     Returns:
-        str: tlsx output
+        str: JSON string containing TLS analysis results
     """
-    print(f"[debug] run_tlsx({targets}, options={options})")
-    
-    if not subprocess.run(["which", "tlsx"], capture_output=True).returncode == 0:
-        return "Error: tlsx is not installed. See https://github.com/projectdiscovery/tlsx"
-    
-    cmd = ["tlsx", "-l", "-"]  # Use stdin for list input
-    if options:
-        cmd.extend(options)
-    
-    print(cmd)
     try:
-        result = subprocess.run(cmd, input="\n".join(targets), capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
+        # Build the command
+        cmd = ["tlsx", "-host", host, "-port", str(port), "-json"]
+        
+        # Run the command
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        # Parse the output
+        try:
+            data = json.loads(result.stdout)
+            return json.dumps({
+                "success": True,
+                "host": host,
+                "port": port,
+                "results": data
+            })
+        except json.JSONDecodeError:
+            return json.dumps({
+                "success": False,
+                "error": "Failed to parse JSON output",
+                "raw_output": result.stdout
+            })
+        
+    except subprocess.CalledProcessError as e:
+        return json.dumps({
+            "success": False,
+            "error": str(e),
+            "stderr": e.stderr
+        })
     except Exception as e:
-        return f"Error executing tlsx: {str(e)}"
+        return json.dumps({
+            "success": False,
+            "error": str(e)
+        })
