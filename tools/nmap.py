@@ -1,5 +1,6 @@
 import subprocess
-from typing import List, Optional
+import json
+from typing import List, Optional, Dict, Any
 
 
 def run_nmap(
@@ -15,22 +16,43 @@ def run_nmap(
         options: Additional Nmap options (e.g., ["-sV", "-A"])
     
     Returns:
-        str: The scan results
+        str: JSON string containing scan results
     """
-    print(f"[debug] run_nmap({target}, ports={ports}, options={options})")
-    
-    if not subprocess.run(["which", "nmap"], capture_output=True).returncode == 0:
-        return "Error: Nmap is not installed. Install it with 'sudo apt install nmap' or similar."
-    
-    cmd = ["nmap", target]
-    if ports:
-        cmd.extend(["-p", ports])
-    if options:
-        cmd.extend(options)
-    
-    print(cmd)
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
+        # Build the command
+        cmd = ["nmap", "-oX", "-", target]  # Output in XML format to stdout
+        if ports:
+            cmd.extend(["-p", ports])
+        if options:
+            cmd.extend(options)
+        
+        # Run the command
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        # Parse the output
+        return json.dumps({
+            "success": True,
+            "target": target,
+            "ports": ports,
+            "results": {
+                "xml_output": result.stdout,
+                "options": options or []
+            }
+        })
+        
+    except subprocess.CalledProcessError as e:
+        return json.dumps({
+            "success": False,
+            "error": str(e),
+            "stderr": e.stderr
+        })
     except Exception as e:
-        return f"Error executing Nmap scan: {str(e)}"
+        return json.dumps({
+            "success": False,
+            "error": str(e)
+        })

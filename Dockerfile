@@ -66,8 +66,9 @@ RUN git clone https://github.com/maurosoria/dirsearch.git /opt/dirsearch \
 
 # Install Amass
 RUN wget -q https://github.com/OWASP/Amass/releases/download/v3.23.3/amass_Linux_amd64.zip && \
-    unzip -o amass_Linux_amd64.zip -d /tools && \
-    rm amass_Linux_amd64.zip && \
+    unzip -o amass_Linux_amd64.zip -d /tmp && \
+    mv /tmp/amass_Linux_amd64/amass /tools/ && \
+    rm -rf /tmp/amass_Linux_amd64 amass_Linux_amd64.zip && \
     chmod +x /tools/amass
 
 # Install Hashcat
@@ -76,12 +77,6 @@ RUN wget -q https://hashcat.net/files/hashcat-6.2.6.7z && \
     mv hashcat-6.2.6 /tools/hashcat && \
     rm hashcat-6.2.6.7z && \
     chmod +x /tools/hashcat/hashcat.bin
-
-# Install IPInfo CLI
-RUN wget -q https://github.com/ipinfo/cli/releases/download/ipinfo-2.12.0/ipinfo_2.12.0_linux_amd64.tar.gz && \
-    tar -xzf ipinfo_2.12.0_linux_amd64.tar.gz -C /tools && \
-    rm ipinfo_2.12.0_linux_amd64.tar.gz && \
-    chmod +x /tools/ipinfo
 
 # Install additional Python packages for tool dependencies
 RUN pip install --no-cache-dir \

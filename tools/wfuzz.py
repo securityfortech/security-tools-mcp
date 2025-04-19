@@ -1,5 +1,6 @@
 import subprocess
-from typing import Optional
+import json
+from typing import Optional, Dict, Any
 
 
 def run_wfuzz(
@@ -15,18 +16,43 @@ def run_wfuzz(
         hide_code: HTTP status code to hide (e.g., "404")
     
     Returns:
-        str: wfuzz output
+        str: JSON string containing fuzzing results
     """
-    print(f"[debug] run_wfuzz({url}, {wordlist}, hide_code={hide_code})")
-    
-    if not subprocess.run(["which", "wfuzz"], capture_output=True).returncode == 0:
-        return "Error: wfuzz is not installed. Install with 'pip install wfuzz'"
-    
-    cmd = ["wfuzz", "-w", wordlist, "--hc", hide_code, url]
-    
-    print(cmd)
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
+        # Build the command
+        cmd = ["wfuzz", "-w", wordlist, "--hc", hide_code, "-f", "json", url]
+        
+        # Run the command
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        # Parse the output
+        try:
+            data = json.loads(result.stdout)
+            return json.dumps({
+                "success": True,
+                "url": url,
+                "results": data
+            })
+        except json.JSONDecodeError:
+            return json.dumps({
+                "success": False,
+                "error": "Failed to parse JSON output",
+                "raw_output": result.stdout
+            })
+        
+    except subprocess.CalledProcessError as e:
+        return json.dumps({
+            "success": False,
+            "error": str(e),
+            "stderr": e.stderr
+        })
     except Exception as e:
-        return f"Error executing wfuzz: {str(e)}"
+        return json.dumps({
+            "success": False,
+            "error": str(e)
+        })

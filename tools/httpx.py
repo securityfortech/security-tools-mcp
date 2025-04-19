@@ -1,5 +1,6 @@
 import subprocess
-from typing import List, Optional
+import json
+from typing import List, Optional, Dict, Any
 
 
 def run_httpx(
@@ -13,20 +14,46 @@ def run_httpx(
         options: Additional httpx options (e.g., ["-status-code", "-title"])
     
     Returns:
-        str: httpx output
+        str: JSON string containing probe results
     """
-    print(f"[debug] run_httpx({targets}, options={options})")
-    
-    if not subprocess.run(["which", "httpx"], capture_output=True).returncode == 0:
-        return "Error: httpx is not installed. See https://github.com/projectdiscovery/httpx"
-    
-    cmd = ["httpx", "-l", "-"]  # Use stdin for list input
-    if options:
-        cmd.extend(options)
-    
-    print(cmd)
     try:
-        result = subprocess.run(cmd, input="\n".join(targets), capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
+        # Build the command
+        cmd = ["httpx", "-json", "-l", "-"]  # Use stdin for list input
+        if options:
+            cmd.extend(options)
+        
+        # Run the command
+        result = subprocess.run(
+            cmd,
+            input="\n".join(targets),
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        # Parse the output
+        try:
+            data = json.loads(result.stdout)
+            return json.dumps({
+                "success": True,
+                "targets": targets,
+                "results": data
+            })
+        except json.JSONDecodeError:
+            return json.dumps({
+                "success": False,
+                "error": "Failed to parse JSON output",
+                "raw_output": result.stdout
+            })
+        
+    except subprocess.CalledProcessError as e:
+        return json.dumps({
+            "success": False,
+            "error": str(e),
+            "stderr": e.stderr
+        })
     except Exception as e:
-        return f"Error executing httpx: {str(e)}"
+        return json.dumps({
+            "success": False,
+            "error": str(e)
+        })

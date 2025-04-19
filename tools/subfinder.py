@@ -1,10 +1,11 @@
 import subprocess
-from typing import Optional
+import json
+from typing import Optional, Dict, Any
 
 
 def run_subfinder(
     domain: str,
-    output_format: Optional[str] = "text",
+    output_format: Optional[str] = "json",
 ) -> str:
     """Run subfinder to enumerate subdomains.
     
@@ -13,20 +14,43 @@ def run_subfinder(
         output_format: Output format (text or json)
     
     Returns:
-        str: Subfinder output
+        str: JSON string containing enumeration results
     """
-    print(f"[debug] run_subfinder({domain}, output_format={output_format})")
-    
-    if not subprocess.run(["which", "subfinder"], capture_output=True).returncode == 0:
-        return "Error: subfinder is not installed. See https://github.com/projectdiscovery/subfinder"
-    
-    cmd = ["subfinder", "-d", domain]
-    if output_format == "json":
-        cmd.append("-json")
-    
-    print(cmd)
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
+        # Build the command
+        cmd = ["subfinder", "-d", domain, "-json"]
+        
+        # Run the command
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        # Parse the output
+        try:
+            data = json.loads(result.stdout)
+            return json.dumps({
+                "success": True,
+                "domain": domain,
+                "results": data
+            })
+        except json.JSONDecodeError:
+            return json.dumps({
+                "success": False,
+                "error": "Failed to parse JSON output",
+                "raw_output": result.stdout
+            })
+        
+    except subprocess.CalledProcessError as e:
+        return json.dumps({
+            "success": False,
+            "error": str(e),
+            "stderr": e.stderr
+        })
     except Exception as e:
-        return f"Error executing subfinder: {str(e)}"
+        return json.dumps({
+            "success": False,
+            "error": str(e)
+        })
