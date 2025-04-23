@@ -32,7 +32,7 @@ A comprehensive security operations platform that integrates multiple security t
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/secops-mcp.git
+   git clone https://github.com/securityfortech/secops-mcp.git
    cd secops-mcp
    ```
 
@@ -50,7 +50,7 @@ A comprehensive security operations platform that integrates multiple security t
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/secops-mcp.git
+   git clone https://github.com/securityfortech/secops-mcp.git
    cd secops-mcp
    ```
 
